@@ -16,8 +16,11 @@ def resize_organized_pc(organized_pc, target_height=224, target_width=224, tenso
     torch_resized_organized_pc = torch.nn.functional.interpolate(torch_organized_pc, size=(target_height, target_width),
                                                                  mode='nearest')
     if tensor_out:
+        #改变点云序列（z,x,y)并降采样到指定长宽
+        #如果dim=0只有1个，压缩
         return torch_resized_organized_pc.squeeze(dim=0)
     else:
+        #长宽采样到指定后，还原至（x,y,z）
         return torch_resized_organized_pc.squeeze().permute(1, 2, 0).numpy()
 
 
