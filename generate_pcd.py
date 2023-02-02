@@ -17,7 +17,7 @@ def generate_pcd(class_name,image_size=224):
         unorganized_pc_no_zeros = unorganized_pc[nonzero_indices, :]
         #生成点云文件
         o3d_pc = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(unorganized_pc_no_zeros))
-        o3d.io.write_point_cloud("./genData/{}/{0:03d}.ply".format(class_name,index), o3d_pc)
+        o3d.io.write_point_cloud("./genData/bagel/{0:03d}.ply".format(index), o3d_pc)
 
 if __name__ == '__main__':
     classes = mvtec3d_classes()
