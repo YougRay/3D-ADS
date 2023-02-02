@@ -98,6 +98,7 @@ class Features(torch.nn.Module):
         self.au_pro, _ = calculate_au_pro(self.gts, self.predictions)
 
     def run_coreset(self):
+        #patch_lib (patch数量，patch)
         self.patch_lib = torch.cat(self.patch_lib, 0)
         if self.f_coreset < 1:
             self.coreset_idx = self.get_coreset_idx_randomp(self.patch_lib,
