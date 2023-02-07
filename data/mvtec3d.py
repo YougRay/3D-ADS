@@ -112,7 +112,7 @@ class MVTec3DTrain(MVTec3D):
         # depth_map_3channel = np.repeat(organized_pc_to_depth_map(organized_pc)[:, :, np.newaxis], 3, axis=2)
         # #降采样深度图并转换为（3,x,y）
         # resized_depth_map_3channel = resize_organized_pc(depth_map_3channel)
-        resized_depth_map_3channel = None
+        resized_depth_map_3channel = np.zeros()
         
 
         rops_feature = self.generate_train_rops(tiff_path,resized_organized_pc)
@@ -204,7 +204,7 @@ class MVTec3DTest(MVTec3D):
 
         # depth_map_3channel = np.repeat(organized_pc_to_depth_map(organized_pc)[:, :, np.newaxis], 3, axis=2)
         # resized_depth_map_3channel = resize_organized_pc(depth_map_3channel)
-        resized_depth_map_3channel = None
+        resized_depth_map_3channel = np.zeros()
 
 
         rops_feature = self.generate_test_rops(tiff_path, resized_organized_pc)
