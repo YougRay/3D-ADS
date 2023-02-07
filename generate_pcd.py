@@ -33,7 +33,7 @@ def generate_train_pcd(class_name,image_size=224):
 
 def test_pcd(class_name,image_size=224):
     test_loader = get_data_loader("test", class_name=class_name, img_size=image_size)
-    for index,(sample,_) in tqdm(enumerate(test_loader), total =len(test_loader),desc=f'Genarate test pcd for class {class_name}'): 
+    for index,(sample,_,_) in tqdm(enumerate(test_loader), total =len(test_loader),desc=f'Genarate test pcd for class {class_name}'): 
         pass
     
 
