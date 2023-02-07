@@ -6,7 +6,9 @@ from torch.utils.data import Dataset
 from utils.mvtec3d_util import *
 from torch.utils.data import DataLoader
 import numpy as np
-from generate_pcd import generate_test_pcd
+from utils.mvtec3d_util import *
+import open3d as o3d
+import numpy as np
 
 DATASETS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '/content/drive/MyDrive/', 'dataset'))
 
@@ -92,6 +94,16 @@ class MVTec3DTest(MVTec3D):
             transforms.ToTensor()])
         self.img_paths, self.gt_paths, self.labels = self.load_dataset()  # self.labels => good : 0, anomaly : 1
 
+    def generate_test_pcd(tiff_path,resized_organized_pc):
+        organized_pc = resized_organized_pc
+        organized_pc_np = organized_pc.squeeze().permute(1, 2, 0).numpy()
+        unorganized_pc = organized_pc_to_unorganized_pc(organized_pc=organized_pc_np)
+        nonzero_indices = np.nonzero(np.all(unorganized_pc != 0, axis=1))[0]
+        unorganized_pc_no_zeros = unorganized_pc[nonzero_indices, :]
+        o3d_pc = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(unorganized_pc_no_zeros))
+        
+        print(tiff_path[10:15])
+
     def load_dataset(self):
         img_tot_paths = []
         gt_tot_paths = []
@@ -152,7 +164,7 @@ class MVTec3DTest(MVTec3D):
             #二值化 大于0.5置1，小于置0
             gt = torch.where(gt > 0.5, 1., .0)
 
-        generate_test_pcd(tiff_path, resized_organized_pc)
+        self.generate_test_pcd(tiff_path, resized_organized_pc)
 
         return (img, resized_organized_pc, resized_depth_map_3channel), gt[:1], label
 
