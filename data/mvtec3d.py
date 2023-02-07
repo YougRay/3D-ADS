@@ -115,7 +115,7 @@ class MVTec3DTrain(MVTec3D):
         resized_depth_map_3channel = None
         
 
-        rops_feature = self.generate_train_pcd(tiff_path,resized_organized_pc)
+        rops_feature = self.generate_train_rops(tiff_path,resized_organized_pc)
 
         return (img, resized_organized_pc, resized_depth_map_3channel,rops_feature), label
 
@@ -128,7 +128,7 @@ class MVTec3DTest(MVTec3D):
             transforms.ToTensor()])
         self.img_paths, self.gt_paths, self.labels = self.load_dataset()  # self.labels => good : 0, anomaly : 1
 
-    def generate_test_pcd(self,tiff_path,resized_organized_pc):
+    def generate_test_rops(self,tiff_path,resized_organized_pc):
         organized_pc = resized_organized_pc
         organized_pc_np = organized_pc.squeeze().permute(1, 2, 0).numpy()
         unorganized_pc = organized_pc_to_unorganized_pc(organized_pc=organized_pc_np)
@@ -207,7 +207,7 @@ class MVTec3DTest(MVTec3D):
         resized_depth_map_3channel = None
 
 
-        
+        rops_feature = self.generate_test_rops(tiff_path, resized_organized_pc)
 
         if gt == 0:
             gt = torch.zeros(
@@ -220,7 +220,7 @@ class MVTec3DTest(MVTec3D):
             #二值化 大于0.5置1，小于置0
             gt = torch.where(gt > 0.5, 1., .0)
 
-        rops_feature = self.generate_test_pcd(tiff_path, resized_organized_pc)
+        
 
         return (img, resized_organized_pc, resized_depth_map_3channel,rops_feature), gt[:1], label
 
