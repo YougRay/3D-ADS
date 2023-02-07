@@ -48,6 +48,34 @@ class MVTec3DTrain(MVTec3D):
         super().__init__(split="train", class_name=class_name, img_size=img_size)
         self.img_paths, self.labels = self.load_dataset()  # self.labels => good : 0, anomaly : 1
 
+    def generate_train_rops(self,tiff_path,resized_organized_pc):
+        organized_pc = resized_organized_pc
+        organized_pc_np = organized_pc.squeeze().permute(1, 2, 0).numpy()
+        unorganized_pc = organized_pc_to_unorganized_pc(organized_pc=organized_pc_np)
+        nonzero_indices = np.nonzero(np.all(unorganized_pc != 0, axis=1))[0]
+        unorganized_pc_no_zeros = unorganized_pc[nonzero_indices, :]
+        o3d_pc = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(unorganized_pc_no_zeros))
+
+        pcd_path = "/content/drive/MyDrive/pcdData/"+tiff_path[31:-5]+".pcd"
+        if not (os.path.exists(pcd_path[:-8])):
+            print(pcd_path[:-8])
+            os.makedirs(pcd_path[:-8])
+        if not (os.path.exists(pcd_path)): 
+            print(pcd_path)
+            o3d.io.write_point_cloud(pcd_path, o3d_pc)
+        rops_path = "/content/drive/MyDrive/ropsData/"+tiff_path[31:-5]+".txt"
+        if not(os.path.exists(rops_path[:-8])):
+            print(rops_path[:-8])
+            os.makedirs(rops_path[:-8])
+        if not (os.path.exists(rops_path)):
+            os.system("/content/3D-ADS/pcl_preprocess/build/rops_feature {} {}".format(pcd_path,rops_path))
+        
+        rops_feature = np.loadtxt(rops_path)
+        return rops_feature
+
+
+
+
     #img_tot_paths样本路径列表[n,2]，[n][0]是rgb，[n][1]是tiff。tot_labels对应样本的标签[n]
     def load_dataset(self):
         img_tot_paths = []
@@ -77,13 +105,19 @@ class MVTec3DTrain(MVTec3D):
         img = self.rgb_transform(img)
         #tiff转点云
         organized_pc = read_tiff_organized_pc(tiff_path)
-        #点云生成3通道的深度图
-        depth_map_3channel = np.repeat(organized_pc_to_depth_map(organized_pc)[:, :, np.newaxis], 3, axis=2)
-        #降采样深度图并转换为（3,x,y）
-        resized_depth_map_3channel = resize_organized_pc(depth_map_3channel)
         #降采样点云并转换为（z,x,y）
         resized_organized_pc = resize_organized_pc(organized_pc)
-        return (img, resized_organized_pc, resized_depth_map_3channel), label
+
+        # #点云生成3通道的深度图
+        # depth_map_3channel = np.repeat(organized_pc_to_depth_map(organized_pc)[:, :, np.newaxis], 3, axis=2)
+        # #降采样深度图并转换为（3,x,y）
+        # resized_depth_map_3channel = resize_organized_pc(depth_map_3channel)
+        resized_depth_map_3channel = None
+        
+
+        rops_feature = self.generate_train_pcd(tiff_path,resized_organized_pc)
+
+        return (img, resized_organized_pc, resized_depth_map_3channel,rops_feature), label
 
 
 class MVTec3DTest(MVTec3D):
@@ -114,7 +148,10 @@ class MVTec3DTest(MVTec3D):
             print(rops_path[:-8])
             os.makedirs(rops_path[:-8])
         if not (os.path.exists(rops_path)):
-            os.system("../pcl_preprocess/build/rops_feature {} {}".format(pcd_path,rops_path))
+            os.system("/content/3D-ADS/pcl_preprocess/build/rops_feature {} {}".format(pcd_path,rops_path))
+        
+        rops_feature = np.loadtxt(rops_path)
+        return rops_feature
              
         
 
@@ -163,9 +200,14 @@ class MVTec3DTest(MVTec3D):
         img = self.rgb_transform(img_original)
 
         organized_pc = read_tiff_organized_pc(tiff_path)
-        depth_map_3channel = np.repeat(organized_pc_to_depth_map(organized_pc)[:, :, np.newaxis], 3, axis=2)
-        resized_depth_map_3channel = resize_organized_pc(depth_map_3channel)
         resized_organized_pc = resize_organized_pc(organized_pc)
+
+        # depth_map_3channel = np.repeat(organized_pc_to_depth_map(organized_pc)[:, :, np.newaxis], 3, axis=2)
+        # resized_depth_map_3channel = resize_organized_pc(depth_map_3channel)
+        resized_depth_map_3channel = None
+
+
+        
 
         if gt == 0:
             gt = torch.zeros(
@@ -178,9 +220,9 @@ class MVTec3DTest(MVTec3D):
             #二值化 大于0.5置1，小于置0
             gt = torch.where(gt > 0.5, 1., .0)
 
-        self.generate_test_pcd(tiff_path, resized_organized_pc)
+        rops_feature = self.generate_test_pcd(tiff_path, resized_organized_pc)
 
-        return (img, resized_organized_pc, resized_depth_map_3channel), gt[:1], label
+        return (img, resized_organized_pc, resized_depth_map_3channel,rops_feature), gt[:1], label
 
 
 def get_data_loader(split, class_name, img_size):

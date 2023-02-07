@@ -50,7 +50,7 @@ pcl::PolygonMesh greedy_projection(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud){
   pcl::PolygonMesh triangles;
 
   // Set the maximum distance between connected points (maximum edge length)
-  gp3.setSearchRadius (0.1);
+  gp3.setSearchRadius (0.025);
 
   // Set typical values for the parameters
   gp3.setMu (2.5);
@@ -124,10 +124,16 @@ int main (int argc, char** argv)
   string out = argv[2];
   ofstream Outfile(out);
   for(int i = 0;i<histograms->points.size();i++){
-    Outfile << histograms->points[i] << endl;
+    for(int j = 0;j<135;j++){
+      if(j< 134){
+        Outfile << histograms->points[i].histogram[j] << ' ';
+      }else{
+        Outfile << histograms->points[i].histogram[j] << endl;
+      }
+    }
   }
   Outfile.close();
-  cout<< "done"<<endl;
+  cout<< "**---done---**"<<endl;
 
 
 
