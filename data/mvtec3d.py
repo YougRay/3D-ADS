@@ -6,6 +6,7 @@ from torch.utils.data import Dataset
 from utils.mvtec3d_util import *
 from torch.utils.data import DataLoader
 import numpy as np
+from generate_pcd import generate_test_pcd
 
 DATASETS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '/content/drive/MyDrive/', 'dataset'))
 
@@ -150,6 +151,8 @@ class MVTec3DTest(MVTec3D):
             gt = self.gt_transform(gt)
             #二值化 大于0.5置1，小于置0
             gt = torch.where(gt > 0.5, 1., .0)
+
+        generate_test_pcd(tiff_path, resized_organized_pc)
 
         return (img, resized_organized_pc, resized_depth_map_3channel), gt[:1], label
 
