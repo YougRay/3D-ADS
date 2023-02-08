@@ -9,6 +9,7 @@ from feature_extractors.sift_features import SIFTFeatures
 from feature_extractors.fpfh_features import FPFHFeatures
 from feature_extractors.rgb_fpfh_features import RGBFPFHFeatures
 from feature_extractors.rops_features import ROPSFeatures
+from feature_extractors.rgb_rops_features import RGBROPSFeatures
 
 
 class PatchCore():
@@ -22,7 +23,8 @@ class PatchCore():
             # "SIFT": SIFTFeatures(),
             # "FPFH": FPFHFeatures(),
             # "RGB + FPFH": RGBFPFHFeatures(),
-            "RoPS":ROPSFeatures(),
+            # "RoPS":ROPSFeatures(),
+            "RGB + RoPS":RGBROPSFeatures(),
         }
 
     def fit(self, class_name):

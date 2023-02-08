@@ -98,11 +98,11 @@ class MVTec3DTrain(MVTec3D):
         img_path, label = self.img_paths[idx], self.labels[idx]
         rgb_path = img_path[0]
         tiff_path = img_path[1]
-        # #读RGB图像
-        # img = Image.open(rgb_path).convert('RGB')
-        # #降采样rgb
-        # img = self.rgb_transform(img)
-        img = np.zeros(0)
+        #读RGB图像
+        img = Image.open(rgb_path).convert('RGB')
+        #降采样rgb
+        img = self.rgb_transform(img)
+        # img = np.zeros(0)
         #tiff转点云
         organized_pc = read_tiff_organized_pc(tiff_path)
         #降采样点云并转换为（z,x,y）
@@ -196,9 +196,9 @@ class MVTec3DTest(MVTec3D):
         img_path, gt, label = self.img_paths[idx], self.gt_paths[idx], self.labels[idx]
         rgb_path = img_path[0]
         tiff_path = img_path[1]
-        # img_original = Image.open(rgb_path).convert('RGB')
-        # img = self.rgb_transform(img_original)
-        img = np.zeros(0)
+        img_original = Image.open(rgb_path).convert('RGB')
+        img = self.rgb_transform(img_original)
+        # img = np.zeros(0)
 
         organized_pc = read_tiff_organized_pc(tiff_path)
         resized_organized_pc = resize_organized_pc(organized_pc)
