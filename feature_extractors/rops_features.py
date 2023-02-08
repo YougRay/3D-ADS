@@ -8,10 +8,10 @@ def get_rops_features(organized_pc, histograms,voxel_size=0.05):
     organized_pc_np = organized_pc.squeeze().permute(1, 2, 0).numpy()
     unorganized_pc = organized_pc_to_unorganized_pc(organized_pc=organized_pc_np)
     nonzero_indices = np.nonzero(np.all(unorganized_pc != 0, axis=1))[0]
-    print(histograms.shape)
+    histograms_np = histograms.squeeze().numpy()
 
-    rops = histograms.data
-    full_rops = np.zeros((unorganized_pc.shape[0], rops.shape[1]), dtype=rops.dtype)
+    rops = histograms_np.data
+    full_rops = np.zeros((unorganized_pc.shape[0], rops.shape[1]), dtype=np.float64)
     full_rops[nonzero_indices, :] = rops
     full_rops_reshaped = full_rops.reshape((organized_pc_np.shape[0], organized_pc_np.shape[1], rops.shape[1]))
     full_rops_tensor = torch.tensor(full_rops_reshaped).permute(2, 0, 1).unsqueeze(dim=0)
