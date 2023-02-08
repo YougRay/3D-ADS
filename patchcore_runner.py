@@ -8,19 +8,21 @@ from feature_extractors.hog_features import HoGFeatures
 from feature_extractors.sift_features import SIFTFeatures
 from feature_extractors.fpfh_features import FPFHFeatures
 from feature_extractors.rgb_fpfh_features import RGBFPFHFeatures
+from feature_extractors.rops_features import ROPSFeatures
 
 
 class PatchCore():
     def __init__(self, image_size=224):
         self.image_size = image_size
         self.methods = {
-            "RGB iNet": RGBInetFeatures(),
-            "Depth iNet": DepthInetFeatures(),
-            "Raw": RawFeatures(),
-            "HoG": HoGFeatures(),
-            "SIFT": SIFTFeatures(),
-            "FPFH": FPFHFeatures(),
-            "RGB + FPFH": RGBFPFHFeatures()
+            # "RGB iNet": RGBInetFeatures(),
+            # "Depth iNet": DepthInetFeatures(),
+            # "Raw": RawFeatures(),
+            # "HoG": HoGFeatures(),
+            # "SIFT": SIFTFeatures(),
+            # "FPFH": FPFHFeatures(),
+            # "RGB + FPFH": RGBFPFHFeatures(),
+            "RoPS":ROPSFeatures(),
         }
 
     def fit(self, class_name):
