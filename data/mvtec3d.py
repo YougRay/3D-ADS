@@ -9,8 +9,18 @@ import numpy as np
 from utils.mvtec3d_util import *
 import open3d as o3d
 import numpy as np
+import platform
 
-DATASETS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '/content/drive/MyDrive/', 'dataset'))
+if platform.system() == 'Darwin':
+    DATASETS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '/Users/youg/OneDrive/lab/', 'dataset'))
+    path_prefix = '/Users/youg/OneDrive/lab/'
+    path_num = 33
+else:
+    DATASETS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '/content/drive/MyDrive/', 'dataset'))
+    path_prefix = '/content/drive/MyDrive/'
+    path_num = 31
+
+
 
 
 # 选择数据集中需要的类
@@ -49,26 +59,29 @@ class MVTec3DTrain(MVTec3D):
         self.img_paths, self.labels = self.load_dataset()  # self.labels => good : 0, anomaly : 1
 
     def generate_train_rops(self,tiff_path,resized_organized_pc):
-        organized_pc = resized_organized_pc
-        organized_pc_np = organized_pc.squeeze().permute(1, 2, 0).numpy()
-        unorganized_pc = organized_pc_to_unorganized_pc(organized_pc=organized_pc_np)
-        nonzero_indices = np.nonzero(np.all(unorganized_pc != 0, axis=1))[0]
-        unorganized_pc_no_zeros = unorganized_pc[nonzero_indices, :]
-        o3d_pc = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(unorganized_pc_no_zeros))
 
-        pcd_path = "/content/drive/MyDrive/pcdData/"+tiff_path[31:-5]+".pcd"
+        pcd_path = path_prefix+"pcdData/"+tiff_path[path_num:-5]+".pcd"
+        
         if not (os.path.exists(pcd_path[:-8])):
             print(pcd_path[:-8])
             os.makedirs(pcd_path[:-8])
         if not (os.path.exists(pcd_path)): 
             print(pcd_path)
+
+            organized_pc = resized_organized_pc
+            organized_pc_np = organized_pc.squeeze().permute(1, 2, 0).numpy()
+            unorganized_pc = organized_pc_to_unorganized_pc(organized_pc=organized_pc_np)
+            nonzero_indices = np.nonzero(np.all(unorganized_pc != 0, axis=1))[0]
+            unorganized_pc_no_zeros = unorganized_pc[nonzero_indices, :]
+            o3d_pc = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(unorganized_pc_no_zeros))
             o3d.io.write_point_cloud(pcd_path, o3d_pc)
-        rops_path = "/content/drive/MyDrive/ropsData/"+tiff_path[31:-5]+".txt"
+
+        rops_path = path_prefix+"ropsData/"+tiff_path[path_num:-5]+".txt"
         if not(os.path.exists(rops_path[:-8])):
             print(rops_path[:-8])
             os.makedirs(rops_path[:-8])
         if not (os.path.exists(rops_path)):
-            os.system("/content/3D-ADS/pcl_preprocess/build/rops_feature {} {}".format(pcd_path,rops_path))
+            os.system("./pcl_preprocess/build/rops_feature {} {}".format(pcd_path,rops_path))
         
         rops_feature = np.loadtxt(rops_path)
         return rops_feature
@@ -129,26 +142,27 @@ class MVTec3DTest(MVTec3D):
         self.img_paths, self.gt_paths, self.labels = self.load_dataset()  # self.labels => good : 0, anomaly : 1
 
     def generate_test_rops(self,tiff_path,resized_organized_pc):
-        organized_pc = resized_organized_pc
-        organized_pc_np = organized_pc.squeeze().permute(1, 2, 0).numpy()
-        unorganized_pc = organized_pc_to_unorganized_pc(organized_pc=organized_pc_np)
-        nonzero_indices = np.nonzero(np.all(unorganized_pc != 0, axis=1))[0]
-        unorganized_pc_no_zeros = unorganized_pc[nonzero_indices, :]
-        o3d_pc = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(unorganized_pc_no_zeros))
 
-        pcd_path = "/content/drive/MyDrive/pcdData/"+tiff_path[31:-5]+".pcd"
+        pcd_path = path_prefix+"pcdData/"+tiff_path[path_num:-5]+".pcd"
+
         if not (os.path.exists(pcd_path[:-8])):
             print(pcd_path[:-8])
             os.makedirs(pcd_path[:-8])
         if not (os.path.exists(pcd_path)): 
             print(pcd_path)
+            organized_pc = resized_organized_pc
+            organized_pc_np = organized_pc.squeeze().permute(1, 2, 0).numpy()
+            unorganized_pc = organized_pc_to_unorganized_pc(organized_pc=organized_pc_np)
+            nonzero_indices = np.nonzero(np.all(unorganized_pc != 0, axis=1))[0]
+            unorganized_pc_no_zeros = unorganized_pc[nonzero_indices, :]
+            o3d_pc = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(unorganized_pc_no_zeros))
             o3d.io.write_point_cloud(pcd_path, o3d_pc)
-        rops_path = "/content/drive/MyDrive/ropsData/"+tiff_path[31:-5]+".txt"
+        rops_path = path_prefix+"ropsData/"+tiff_path[path_num:-5]+".txt"
         if not(os.path.exists(rops_path[:-8])):
             print(rops_path[:-8])
             os.makedirs(rops_path[:-8])
         if not (os.path.exists(rops_path)):
-            os.system("/content/3D-ADS/pcl_preprocess/build/rops_feature {} {}".format(pcd_path,rops_path))
+            os.system("./3D-ADS/pcl_preprocess/build/rops_feature {} {}".format(pcd_path,rops_path))
         
         rops_feature = np.loadtxt(rops_path)
         return rops_feature
@@ -198,7 +212,7 @@ class MVTec3DTest(MVTec3D):
         tiff_path = img_path[1]
         img_original = Image.open(rgb_path).convert('RGB')
         img = self.rgb_transform(img_original)
-        # img = np.zeros(0)
+        # img = np.zeros(0)        
 
         organized_pc = read_tiff_organized_pc(tiff_path)
         resized_organized_pc = resize_organized_pc(organized_pc)
@@ -234,6 +248,6 @@ def get_data_loader(split, class_name, img_size):
     elif split in ['test']:
         dataset = MVTec3DTest(class_name=class_name, img_size=img_size)
 
-    data_loader = DataLoader(dataset=dataset, batch_size=1, shuffle=False, num_workers=1, drop_last=False,
+    data_loader = DataLoader(dataset=dataset, batch_size=1, shuffle=False, num_workers=2, drop_last=False,
                              pin_memory=True)
     return data_loader

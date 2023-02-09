@@ -11,13 +11,17 @@ import timm
 import torch
 from tqdm import tqdm
 from utils.au_pro_util import calculate_au_pro
+import platform
 
 
 class Features(torch.nn.Module):
 
     def __init__(self, image_size=224, f_coreset=0.1, coreset_eps=0.9):
         super().__init__()
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        if platform.system() == 'Darwin':
+            self.device = "mps"
+        else:
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.deep_feature_extractor = Model(device=self.device)
         self.deep_feature_extractor.to(self.device)
         self.deep_feature_extractor.freeze_parameters(layers=[], freeze_bn=True)
@@ -140,10 +144,16 @@ class Features(torch.nn.Module):
             last_item = last_item.half()
             z_lib = z_lib.half()
             min_distances = min_distances.half()
-        if torch.cuda.is_available() and not force_cpu:
-            last_item = last_item.to("cuda")
-            z_lib = z_lib.to("cuda")
-            min_distances = min_distances.to("cuda")
+        
+        if platform.system() == 'Darwin':
+            last_item = last_item.to("mps")
+            z_lib = z_lib.to("mps")
+            min_distances = min_distances.to("mps")
+        else:
+            if torch.cuda.is_available() and not force_cpu:
+                last_item = last_item.to("cuda")
+                z_lib = z_lib.to("cuda")
+                min_distances = min_distances.to("cuda")
 
         for _ in tqdm(range(n - 1)):
             distances = torch.linalg.norm(z_lib - last_item, dim=1, keepdims=True)  # broadcasting step
