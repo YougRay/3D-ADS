@@ -13,16 +13,17 @@ DATASETS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data
 
 def mvtec3d_classes():
     return [
-        "bagel",
-        "cable_gland",
-        "carrot",
-        "cookie",
-        "dowel",
-        "foam",
-        "peach",
-        "potato",
-        "rope",
-        "tire",
+        # "bagel",
+        # "cable_gland",
+        # "carrot",
+        # "cookie",
+        # "dowel",
+        # "foam",
+        # "peach",
+        # "potato",
+        # "rope",
+        # "tire",
+        "motor",
     ]
 
 
@@ -47,7 +48,7 @@ class MVTec3DTrain(MVTec3D):
     def load_dataset(self):
         img_tot_paths = []
         tot_labels = []
-        rgb_paths = glob.glob(os.path.join(self.img_path, 'good', 'rgb') + "/*.png")
+        rgb_paths = glob.glob(os.path.join(self.img_path, 'good', 'rgb') + "/*.jpg")
         tiff_paths = glob.glob(os.path.join(self.img_path, 'good', 'xyz') + "/*.tiff")
         rgb_paths.sort()
         tiff_paths.sort()
@@ -89,7 +90,7 @@ class MVTec3DTest(MVTec3D):
 
         for defect_type in defect_types:
             if defect_type == 'good':
-                rgb_paths = glob.glob(os.path.join(self.img_path, defect_type, 'rgb') + "/*.png")
+                rgb_paths = glob.glob(os.path.join(self.img_path, defect_type, 'rgb') + "/*.jpg")
                 tiff_paths = glob.glob(os.path.join(self.img_path, defect_type, 'xyz') + "/*.tiff")
                 rgb_paths.sort()
                 tiff_paths.sort()
@@ -98,9 +99,9 @@ class MVTec3DTest(MVTec3D):
                 gt_tot_paths.extend([0] * len(sample_paths))
                 tot_labels.extend([0] * len(sample_paths))
             else:
-                rgb_paths = glob.glob(os.path.join(self.img_path, defect_type, 'rgb') + "/*.png")
+                rgb_paths = glob.glob(os.path.join(self.img_path, defect_type, 'rgb') + "/*.jpg")
                 tiff_paths = glob.glob(os.path.join(self.img_path, defect_type, 'xyz') + "/*.tiff")
-                gt_paths = glob.glob(os.path.join(self.img_path, defect_type, 'gt') + "/*.png")
+                gt_paths = glob.glob(os.path.join(self.img_path, defect_type, 'rgb') + "/*.jpg")
                 rgb_paths.sort()
                 tiff_paths.sort()
                 gt_paths.sort()
